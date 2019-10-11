@@ -39,15 +39,19 @@ print("=== SSO LOGIN ===")
 print("=================")
 print(" ")
 
+
 keycloak_openid = KeycloakOpenID(server_url="https://service.wienerstadtwerke.at/auth/",
-                    client_id="client-smp-public",
-                    realm_name="wienernetze",
-                    client_secret_key=uuid.uuid1())
+		client_id="client-smp-public",
+		realm_name="wienernetze",
+		client_secret_key=uuid.uuid1())
 
 try:
 	token = keycloak_openid.token(USERNAME, PASSWORD)
 except:
-	print('[' + str(sys.exc_info()[1]).split(":")[0] + '] ' + requests.status_codes._codes[int(str(sys.exc_info()[1]).split(":")[0])][0])
+	try:
+		print('[' + str(sys.exc_info()[1]).split(":")[0] + '] ' + requests.status_codes._codes[int(str(sys.exc_info()[1]).split(":")[0])][0])
+	except:
+		print("Network ERROR")
 	print(" ")
 	sys.exit()
 
