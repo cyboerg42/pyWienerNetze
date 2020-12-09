@@ -93,11 +93,10 @@ print("=== GET ===")
 print("===========")
 print(" ")
 
-URL = "https://service.wienernetze.at/rest/smp/1.0/m/messdaten/export"
-URL = URL + "?dateFrom=" + from_date + "T22:00:00.000Z"
-URL = URL + "&dateUntil=" + until_date + "T21:59:59.999Z"
+URL = "https://service.wienernetze.at/rest/smp/1.0/m/messdaten/zaehlpunkt/" + ZNR + "/verbrauch"
+URL = URL + "?dateFrom=" + from_date + "T23:00:00.000Z"
 URL = URL + "&quarter-hour=true"
-URL = URL + "&zaehlpunkte=" + ZNR
+URL = URL + "&period=DAY&accumulate=false&offset=0&dayViewResolution=QUARTER-HOUR"
 
 encoding="ISO-8859-1"
 
@@ -128,25 +127,21 @@ print("=== DATA ===")
 print("============")
 print(" ")
 
-data = StringIO(r.content.decode(encoding.lower()))
-df = pandas.read_csv(data, sep=";")
-i = 0
-avg = 0
-for index, rows in df.iterrows():
-	print("Datum     -> " + str(rows[0]))
-	print("Uhrzeit   -> " + str(rows[1]))
-	load = float(rows[2].replace(",", ".")) * 4
-	print("Last (kW) -> " + str(load))
-	avg = avg + load
-	i = i + 1
-	print(" ")
+data = json.loads(r.content.decode(encoding.lower()))
 
-if i == 0:
-	print("no data.")
-	print(" ")
-else :
-	avg = round(avg/i,6) * 1000
-	print("Durchschnittliche Last -> " + str(avg) + " W")
-	print(" ")
+sum = 0
+
+for x in data['values']:
+    print(x['timestamp'] + " -> " + str(x['value'] * 4) + "W")
+    sum = sum + x['value']
+
+print('')
+
+avg = sum / 24
+
+print("Tagesverbrauch -> " + str(sum) + "Wh")
+print("Durchschnitt -> " + str(avg) + "W")
+print('')
+
 
 keycloak_openid.logout(token['refresh_token'])
