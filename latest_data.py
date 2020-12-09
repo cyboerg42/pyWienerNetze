@@ -64,11 +64,9 @@ print("=== OPTIONS ===")
 print("===============")
 print(" ")
 
-URL = "https://service.wienernetze.at/rest/smp/1.0/m/messdaten/export"
-URL = URL + "?dateFrom=" + from_date + "T22:00:00.000Z"
-URL = URL + "&dateUntil=" + until_date + "T21:59:59.999Z"
-URL = URL + "&quarter-hour=true"
-URL = URL + "&zaehlpunkte=" + ZNR
+URL = "https://service.wienernetze.at/rest/smp/1.0/m/messdaten/zaehlpunkt/" + ZNR + "/verbrauch"
+URL = URL + "?dateFrom=" + from_date + "T23:00:00.000Z"
+URL = URL + "&period=DAY&accumulate=false&offset=0&dayViewResolution=QUARTER-HOUR"
 
 headers = {
 'User-Agent': 'Mozilla/5.0 (X11; Linux ppc64le; rv:66.0) Gecko/20100101 Firefox/66.0',
