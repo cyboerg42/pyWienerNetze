@@ -18,15 +18,21 @@ import requests
 import pandas
 import datetime
 import uuid
+import json
 
 USERNAME = "demouser"
 PASSWORD = "Demouser123"
 
 ZNR = "DEMO00000000000000000000000000001"
-DATUM = datetime.date.today() - datetime.timedelta(days=1)
+#DATUM = datetime.date.today() - datetime.timedelta(days=1)
+TIMEDELTA = datetime.timedelta(days=1)
 
-from_date = (DATUM - datetime.timedelta(days=1)).strftime("%Y-%m-%d")
-until_date = DATUM.strftime("%Y-%m-%d")
+time     = datetime.datetime.now()
+time_utc = datetime.datetime.utcnow()
+from_date = time - datetime.timedelta(hours=time.hour,minutes=time.minute,seconds=time.second) - TIMEDELTA
+from_date = from_date.replace(microsecond=0)
+from_date_utc = time_utc - datetime.timedelta(hours=time.hour,minutes=time.minute,seconds=time.second) - TIMEDELTA
+from_date_utc = from_date_utc.replace(microsecond=0)
 
 if sys.version_info[0] < 3:
     from StringIO import StringIO
@@ -65,7 +71,7 @@ print("===============")
 print(" ")
 
 URL = "https://service.wienernetze.at/rest/smp/1.0/m/messdaten/zaehlpunkt/" + ZNR + "/verbrauch"
-URL = URL + "?dateFrom=" + from_date + "T23:00:00.000Z"
+URL = URL + "?dateFrom=" + from_date_utc.isoformat() + ".000Z"
 URL = URL + "&period=DAY&accumulate=false&offset=0&dayViewResolution=QUARTER-HOUR"
 
 headers = {
@@ -92,7 +98,7 @@ print("===========")
 print(" ")
 
 URL = "https://service.wienernetze.at/rest/smp/1.0/m/messdaten/zaehlpunkt/" + ZNR + "/verbrauch"
-URL = URL + "?dateFrom=" + from_date + "T23:00:00.000Z"
+URL = URL + "?dateFrom=" + from_date_utc.isoformat() + ".000Z"
 URL = URL + "&quarter-hour=true"
 URL = URL + "&period=DAY&accumulate=false&offset=0&dayViewResolution=QUARTER-HOUR"
 
@@ -113,9 +119,9 @@ headers = {
 
 r = requests.get(url = URL, headers = headers)
 
-print('[' + str(p.status_code) + '] ' + requests.status_codes._codes[p.status_code][0])
+print('[' + str(r.status_code) + '] ' + requests.status_codes._codes[r.status_code][0])
 
-if p.status_code != 200:
+if r.status_code != 200:
 	keycloak_openid.logout(token['refresh_token'])
 	sys.exit()
 
@@ -128,10 +134,13 @@ print(" ")
 data = json.loads(r.content.decode(encoding.lower()))
 
 sum = 0
+timestamp = from_date
 
 for x in data['values']:
-    print(x['timestamp'] + " -> " + str(x['value'] * 4) + "W")
-    sum = sum + x['value']
+	if x['value'] != None:
+		timestamp += datetime.timedelta(minutes=15)
+		print(timestamp.strftime("%d.%m.%Y, %H:%M:%S") + " -> " + str(x['value']*4) + "W\t" + "("+ str(x['value']) + "Wh)")
+		sum = sum + x['value']
 
 print('')
 
