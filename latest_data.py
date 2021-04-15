@@ -71,8 +71,8 @@ print("===============")
 print(" ")
 
 URL = "https://service.wienernetze.at/rest/smp/1.0/m/messdaten/zaehlpunkt/" + ZNR + "/verbrauch"
-URL = URL + "?dateFrom=" + from_date_utc.isoformat() + ".000Z"
-URL = URL + "&period=DAY&accumulate=false&offset=0&dayViewResolution=QUARTER-HOUR"
+URL += "?dateFrom=" + from_date_utc.isoformat() + ".000Z"
+URL += "&period=DAY&accumulate=false&offset=0&dayViewResolution=QUARTER-HOUR"
 
 headers = {
 'User-Agent': 'Mozilla/5.0 (X11; Linux ppc64le; rv:66.0) Gecko/20100101 Firefox/66.0',
